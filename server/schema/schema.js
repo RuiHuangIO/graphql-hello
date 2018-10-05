@@ -12,7 +12,8 @@ const { GraphQLObjectType, GraphQLString, GraphQLSchema } = graphql;
 var books = [
   { name: "PogChamp", genre: "Sports", id: "1" },
   { name: "WutFace", genre: "Horror", id: "2" },
-  { name: "PagChomp", genre: "Thriller", id: "3" }
+  { name: "PagChomp", genre: "Thriller", id: "3" },
+  { name: "OMEGALUL", genre: "Comedy", id: "4" }
 ];
 
 // first object type
