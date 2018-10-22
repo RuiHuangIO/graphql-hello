@@ -7,6 +7,8 @@ schema:
 
 const graphql = require("graphql");
 const _ = require("lodash");
+const Book = require("../models/book");
+const Author = require("../models/author");
 
 const {
   GraphQLObjectType,
@@ -16,22 +18,6 @@ const {
   GraphQLInt,
   GraphQLList
 } = graphql;
-
-//some dummy data
-var books = [
-  { name: "PogChamp", genre: "Sports", id: "1", authorId: "3" },
-  { name: "WutFace", genre: "Horror", id: "2", authorId: "1" },
-  { name: "PagChomp", genre: "Thriller", id: "3", authorId: "2" },
-  { name: "OMEGALUL", genre: "Comedy", id: "4", authorId: "3" },
-  { name: "DansGame", genre: "Horror", id: "5", authorId: "2" },
-  { name: "PogU", genre: "Sports", id: "6", authorId: "1" }
-];
-
-var authors = [
-  { name: "Jason", age: "16", id: "1" },
-  { name: "Jack", age: "26", id: "2" },
-  { name: "John", age: "36", id: "3" }
-];
 
 const BookType = new GraphQLObjectType({
   name: "Book",
@@ -46,8 +32,7 @@ const BookType = new GraphQLObjectType({
       type: AuthorType,
       resolve(parent, args) {
         //parent will be the initial book object we requested
-        console.log(parent);
-        return _.find(authors, { id: parent.authorId });
+        //return _.find(authors, { id: parent.authorId });
       }
     }
   })
@@ -64,7 +49,7 @@ const AuthorType = new GraphQLObjectType({
       type: new GraphQLList(BookType),
       //can't use BookType because that indicates each author only have one book
       resolve(parent, args) {
-        return _.filter(books, { authorId: parent.id });
+        //.return _.filter(books, { authorId: parent.id });
       }
     }
   })
@@ -79,7 +64,7 @@ const RootQuery = new GraphQLObjectType({
       args: { id: { type: GraphQLID } },
       resolve(parent, args) {
         // #code to get date from db / other source
-        return _.find(books, { id: args.id });
+        //return _.find(books, { id: args.id });
       }
     },
     author: {
@@ -90,24 +75,64 @@ const RootQuery = new GraphQLObjectType({
         }
       },
       resolve(parent, args) {
-        return _.find(authors, { id: args.id });
+        //return _.find(authors, { id: args.id });
       }
     },
     books: {
       type: new GraphQLList(BookType),
       resolve(parent, args) {
-        return books;
+        //return books;
       }
     },
     authors: {
       type: new GraphQLList(AuthorType),
       resolve(parent, args) {
-        return authors;
+        //return authors;
+      }
+    }
+  }
+});
+
+// In graphql, we need to explicitly define mutations to say what data can be altered
+const Mutation = new GraphQLObjectType({
+  name: "Mutation",
+  fields: {
+    addAuthor: {
+      type: AuthorType,
+      args: {
+        name: { type: GraphQLString },
+        age: { type: GraphQLInt }
+      },
+      resolve(parent, args) {
+        // author model we imported
+        let author = new Author({
+          name: args.name,
+          age: args.age
+        });
+        return author.save();
+        // save method provided by mongoose
+      }
+    },
+    addBook: {
+      type: BookType,
+      args: {
+        name: { type: GraphQLString },
+        genre: { type: GraphQLString },
+        authorId: { type: GraphQLID }
+      },
+      resolve(parent, args) {
+        let book = new Book({
+          name: args.name,
+          genre: args.genre,
+          authorId: args.authorId
+        });
+        return book.save();
       }
     }
   }
 });
 
 module.exports = new GraphQLSchema({
-  query: RootQuery
+  query: RootQuery,
+  mutation: Mutation
 });
