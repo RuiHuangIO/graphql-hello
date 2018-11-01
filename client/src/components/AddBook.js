@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-import { graphql } from "react-apollo";
-import { getAuthorsQuery } from "../queries/queries";
+import { graphql, compose } from "react-apollo";
+import { getAuthorsQuery, addBookMutation } from "../queries/queries";
 
 export class AddBook extends Component {
   constructor(props) {
@@ -12,7 +12,7 @@ export class AddBook extends Component {
     };
   }
   displayAuthors() {
-    const data = this.props.data;
+    const data = this.props.getAuthors;
     if (data.loading) {
       return <option disabled>Loading authors...</option>;
     } else {
@@ -27,7 +27,13 @@ export class AddBook extends Component {
   }
   submitForm(e) {
     e.preventDefault();
-    console.log(this.state);
+    this.props.addBook({
+      variables: {
+        name: this.state.name,
+        genre: this.state.genre,
+        authorId: this.state.authorId
+      }
+    });
   }
   render() {
     return (
@@ -62,4 +68,11 @@ export class AddBook extends Component {
   }
 }
 
-export default graphql(getAuthorsQuery)(AddBook);
+// export default graphql(getAuthorsQuery)(AddBook);
+// old method
+
+export default compose(
+  graphql(getAuthorsQuery, { name: "getAuthors" }),
+  graphql(addBookMutation, { name: "addBook" })
+)(AddBook);
+// new method, use compose from react-apollo to use multiple queries

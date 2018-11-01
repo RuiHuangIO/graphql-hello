@@ -18,4 +18,14 @@ const getAuthorsQuery = gql`
   }
 `;
 
-export { getAuthorsQuery, getBooksQuery };
+// "$" declares query variable, PHP got it right
+const addBookMutation = gql`
+  mutation($name: String!, $genre: String!, $authorId: ID!) {
+    addBook(name: $name, genre: $genre, authorId: $authorId) {
+      name
+      id
+    }
+  }
+`;
+
+export { getAuthorsQuery, getBooksQuery, addBookMutation };
